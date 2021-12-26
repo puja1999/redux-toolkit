@@ -1,0 +1,307 @@
+
+    1) npm install @reduxjs/toolkit react-redux
+    2) Create a Redux Store​
+    Create a file named src/app/store.js. Import the configureStore API from Redux Toolkit.
+    We'll start by creating an empty Redux store, and exporting it:
+
+        app/store.js
+        import { configureStore } from '@reduxjs/toolkit'
+        export const store = configureStore({
+        reducer: {},
+        })
+
+    This creates a Redux store, and also automatically configure the Redux DevTools extension 
+    so that you can inspect the store while developing.
+
+    3) Provide the Redux Store to React​
+    Once the store is created, we can make it available to our React components by putting a
+    React-Redux <Provider> around our application in src/index.js. Import the Redux store we 
+    just created, put a <Provider> around your <App>, and pass the store as a prop:
+
+        index.js
+        import React from 'react'
+        import ReactDOM from 'react-dom'
+        import './index.css'
+        import App from './App'
+        import { store } from './app/store'
+        import { Provider } from 'react-redux'
+
+        ReactDOM.render(
+        <Provider store={store}>
+            <App />
+        </Provider>,
+        document.getElementById('root')
+        )
+
+    4) Create a Redux State Slice​
+    Add a new file named src/features/counter/counterSlice.js. In that file, import the
+    createSlice API from Redux Toolkit.
+
+    Creating a slice requires a string name to identify the slice, an initial state value,
+    and one or more reducer functions to define how the state can be updated. Once a slice
+    is created, we can export the generated Redux action creators and the reducer function
+    for the whole slice.
+
+    Redux requires that we write all state updates immutably, by making copies of data and 
+    updating the copies. However, Redux Toolkit's createSlice and createReducer APIs use Immer 
+    inside to allow us to write "mutating" update logic that becomes correct immutable updates.
+
+    features/counter/counterSlice.js
+    import { createSlice } from '@reduxjs/toolkit'
+
+    const initialState = {
+    value: 0,
+    }
+
+    export const counterSlice = createSlice({
+    name: 'counter',
+    initialState,
+    reducers: {
+        increment: (state) => {
+        // Redux Toolkit allows us to write "mutating" logic in reducers. It
+        // doesn't actually mutate the state because it uses the Immer library,
+        // which detects changes to a "draft state" and produces a brand new
+        // immutable state based off those changes
+        state.value += 1
+        },
+        decrement: (state) => {
+        state.value -= 1
+        },
+        incrementByAmount: (state, action) => {
+        state.value += action.payload
+        },
+    },
+    })
+
+    // Action creators are generated for each case reducer function
+    export const { increment, decrement, incrementByAmount } = counterSlice.actions
+
+    export default counterSlice.reducer
+
+    5) Add Slice Reducers to the Store​
+    Next, we need to import the reducer function from the counter slice and add it to our store.
+    By defining a field inside the reducer parameter, we tell the store to use this slice reducer 
+    function to handle all updates to that state.
+
+        app/store.js
+        import { configureStore } from '@reduxjs/toolkit'
+        import counterReducer from '../features/counter/counterSlice'
+
+        export default configureStore({
+        reducer: {
+            counter: counterReducer,
+        },
+        })
+
+    6) Use Redux State and Actions in React Components​
+    Now we can use the React-Redux hooks to let React components interact with the Redux store.
+    We can read data from the store with useSelector, and dispatch actions using useDispatch. 
+    Create a src/features/counter/Counter.js file with a <Counter> component inside, then import
+    that component into App.js and render it inside of <App>.
+
+        features/counter/Counter.js
+        import React from 'react'
+        import { useSelector, useDispatch } from 'react-redux'
+        import { decrement, increment } from './counterSlice'
+
+        export function Counter() {
+        const count = useSelector((state) => state.counter.value)
+        const dispatch = useDispatch()
+
+        return (
+            <div>
+            <div>
+                <button
+                aria-label="Increment value"
+                onClick={() => dispatch(increment())}
+                >
+                Increment
+                </button>
+                <span>{count}</span>
+                <button
+                aria-label="Decrement value"
+                onClick={() => dispatch(decrement())}
+                >
+                Decrement
+                </button>
+            </div>
+            </div>
+        )
+        }
+    
+    Now, any time you click the "Increment" and "Decrement buttons:
+    The corresponding Redux action will be dispatched to the store
+    The counter slice reducer will see the actions and update its state
+    The <Counter> component will see the new state value from the store and re-render itself
+    with the new data
+
+    Q) SUMMARY
+    Create a Redux store with configureStore
+    configureStore accepts a reducer function as a named argument
+    configureStore automatically sets up the store with good default settings
+    Provide the Redux store to the React application components
+    Put a React-Redux <Provider> component around your <App />
+    Pass the Redux store as <Provider store={store}>
+    Create a Redux "slice" reducer with createSlice
+    Call createSlice with a string name, an initial state, and named reducer functions
+    Reducer functions may "mutate" the state using Immer
+    Export the generated slice reducer and action creators
+    Use the React-Redux useSelector/useDispatch hooks in React components
+    Read data from the store with the useSelector hook
+    Get the dispatch function with the useDispatch hook, and dispatch actions as needed
+
+    Q) Getting Started with Redux Toolkit
+
+    Step 1: Install Packages
+        To get started with Redux Toolkit and React-Redux packages, you can run the following 
+        command on an existing React app:
+
+    Copy
+    npm install @reduxjs/toolkit react-redux
+    Alternatively, install via Create React App with:
+
+    Copy
+    npx create-react-app my-app --template redux
+
+    Step 2: Create & Initialize Store
+        Now let’s create a store to hold our states. We can create a store.js file in our src 
+        folder and add the following code in it:
+
+    Copy
+    import { configureStore } from '@reduxjs/toolkit'
+    export default configureStore({
+    reducer: {} //add reducers here
+    })
+
+
+    The configureStore here replaces the original createStore from Redux. Unlike createStore,
+    configureStore from Redux Toolkit not only creates a store, but it can also accept reducer
+    functions as arguments and automatically sets up the Redux DevTools Extension for easy debugging.
+
+    Step 3: Provide Store in React app
+        Once our store is created, which we will need every component in our React app to be able to access.
+        We can do this using the Provider from our react-redux package we installed.
+
+    In our index.js file, we import the Provider and our store.js like so:
+
+        Copy
+        import store from './store'
+        import { Provider } from 'react-redux'
+        ReactDOM.render(
+        <Provider store={store}>
+            <App />
+        </Provider>,
+        document.getElementById('root')
+        )
+
+    Step 4: Write Reducers and Actions
+    We can now write some reducer functions and actions for our Redux store.
+
+    In the traditional Redux, we usually write reducers and actions separately.
+
+    For example, a simple reducer and action for a counter app will be written in traditional Redux like so:
+
+        Actions
+        Copy
+        // actions/index.js
+        export const Increase = () => ({
+        type: 'INCREASE'
+        })
+        export const Decrease = () => ({
+        type: 'DECREASE'
+        })
+        Reducers
+        Copy
+        // reducers/index.js
+        export default (state = 0, action) => {
+        switch (action.type) {
+            case 'INCREASE':
+            return state + 1
+            case 'DECREASE':
+            return state - 1
+            default:
+            return state
+        }
+        }
+
+    With Redux Toolkit, we can make the code much more concise by using createSlice.
+    Create a counterSlice.js file in the src folder of the app. Both the reducers and
+    actions can be written under a slice like so:
+
+        Copy
+        import { createSlice } from '@reduxjs/toolkit'
+        export const counterSlice = createSlice({
+        name: 'counter',
+        initialState: {
+            value: 0
+        },
+        reducers: {
+            increase: state => {
+            state.value += 1
+            },
+            decrease: state => {
+            state.value -= 1
+            }
+        }
+        })
+    // each case under reducers becomes an action
+    export const { increase, decrease } = counterSlice.actions
+    export default counterSlice.reducer
+    As seen from the code above, defining reducers and actions become cleaner and faster
+    in Redux Toolkit. There is no longer need to use the switch statements to manage the 
+    action with its corresponding reducer.
+
+    Another thing you may have noticed is that it seems we are now directly mutating the 
+    state’s value in the reducer function instead of returning a new value to update the 
+    state. This is actually because Redux Toolkit uses the Immer library, which allows writing 
+    “mutating” logic in reducers.
+
+    Step 5: Import Reducer to Store
+    We have exported our reducers and actions from our counterSlice.js. So let’s import the 
+    reducer into our store.js.
+
+        Copy
+        import { configureStore } from '@reduxjs/toolkit'
+        import counterReducer from '.counterSlice' //import our reducer from step 4
+        export default configureStore({
+        reducer: {
+            counter: counterReducer //add our reducer from step 4
+        }
+        })
+    Step 6: Dispatch Actions from UI
+    As we have learned earlier, our View triggers an action to be dispatched in order to update
+    a state. In Redux, we use store.dispatch(action) to dispatch an action.
+
+    Instead, let’s use React-Redux to use the useDispatch hook to dispatch actions and useSelector
+    to read data from the store.
+
+    Create a Counter.js file in our src folder to represent our Counter component. In this file,
+    we will import our useDispatch and useSelector hooks from React-Redux. We will also import
+    our actions from our counterSlice.js.
+
+        Copy
+        import { useSelector, useDispatch } from 'react-redux'
+        import { decrease, increase } from './counterSlice'
+    Then, our Counter function will initialize our 2 hooks and return UI elements with our dispatch(action)
+    triggered when clicked.
+
+        Copy
+        export function Counter() {
+        const count = useSelector(state => state.counter.value)
+        // in our slice, we provided the name property as 'counter'
+        // and the initialState with a 'value' property
+        // thus to read our data, we need useSelector to return the state.counter.value
+        const dispatch = useDispatch()
+        // gets the dispatch function to dispatch our actions
+        return (
+            <div>
+                <button onClick={() => dispatch(increase())}>
+                Increase
+                </button>
+                <p>{count}<p>
+                <button onClick={() => dispatch(decrease())}>
+                Decrease
+                </button>
+            </div>
+        )
+        }
